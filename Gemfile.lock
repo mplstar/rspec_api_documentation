@@ -7,8 +7,6 @@ PATH
       json (~> 2.0)
       mustache (~> 1.0, >= 0.99.4)
       rspec (~> 3.0)
-      rspec-its
-      shoulda-matchers
       webmock (~> 3.0)
 
 GEM

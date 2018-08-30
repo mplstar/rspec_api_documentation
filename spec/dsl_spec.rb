@@ -3,17 +3,17 @@ require 'rspec_api_documentation/dsl'
 require 'net/http'
 
 describe "Non-api documentation specs" do
-  it "should not be polluted by the rspec api dsl" do
+  it "should not be polluted by the rspec api dsl" do |example|
     example.example_group.should_not include(RspecApiDocumentation::DSL)
   end
 end
 
 resource "Order" do
   describe "example metadata" do
-    subject { example.metadata }
+    subject { |example| example.metadata }
 
     its([:resource_name]) { should eq("Order") }
-    its([:document]) { should be_true }
+    its([:document]) { should be_truthy }
   end
 
   describe "example context" do
@@ -28,10 +28,10 @@ resource "Order" do
 
   [:post, :get, :put, :delete, :head, :patch].each do |http_method|
     send(http_method, "/path") do
-      specify { example.example_group.description.should eq("#{http_method.to_s.upcase} /path") }
+      specify {|example| example.example_group.description.should eq("#{http_method.to_s.upcase} /path") }
 
       describe "example metadata" do
-        subject { example.metadata }
+        subject {|example| example.metadata }
 
         its([:method]) { should eq(http_method) }
         its([:route]) { should eq("/path") }
@@ -39,6 +39,7 @@ resource "Order" do
 
       describe "example context" do
         subject { self }
+        let(:example) { |example| example }
 
         its(:method) { should eq(http_method) }
         its(:path) { should eq("/path") }
@@ -58,7 +59,7 @@ resource "Order" do
     parameter :size, "The size of drink you want."
     parameter :note, "Any additional notes about your order."
 
-    subject { example.metadata }
+    subject { |example| example.metadata }
 
     post "/orders" do
       required_parameters :type, :size
@@ -98,7 +99,7 @@ resource "Order" do
     let(:size) { "medium" }
 
     describe "example metadata" do
-      subject { example.metadata }
+      subject { |example| example.metadata }
 
       it "should include the documentated parameters" do
         subject[:parameters].should eq(
@@ -115,6 +116,8 @@ resource "Order" do
       subject { self }
 
       describe "params" do
+        let(:example) { |example| example }
+
         it "should equal the assigned parameter values" do
           params.should eq("type" => "coffee", "size" => "medium")
         end
@@ -135,6 +138,8 @@ resource "Order" do
     let(:id) { 1 }
 
     describe "do_request" do
+      let(:example) { |example| example }
+
       context "when raw_post is defined" do
         let(:raw_post) { { :bill => params }.to_json }
 
@@ -168,7 +173,9 @@ resource "Order" do
     end
 
     describe "no_doc" do
-      it "should not add requests" do
+      let(:example) {|example| example}
+
+      it "should not add requests" do 
         example.metadata[:requests] = ["first request"]
 
         no_doc do
@@ -185,6 +192,8 @@ resource "Order" do
     parameter :type, "The type document you want"
 
     describe "do_request" do
+      let(:example) { |example| example }
+
       it "should correctly set path variables and other parameters" do
         client.should_receive(method).with("/orders/3/line_items/2?type=short", nil, nil)
         do_request(:id => 2, :order_id => 3, :type => 'short')
@@ -193,9 +202,10 @@ resource "Order" do
   end
 
   get "/orders/:order_id" do
-    let(:order) { stub(:id => 1) }
+    let(:order) { instance_double("order", id: 1) }
 
     describe "path" do
+      let(:example) {|example| example}
       subject { self.path }
 
       context "when id has been defined" do
@@ -217,14 +227,14 @@ resource "Order" do
   describe "nested parameters" do
     parameter :per_page, "Number of results on a page"
 
-    it "should only have 1 parameter" do
+    it "should only have 1 parameter" do |example|
       example.metadata[:parameters].length.should == 1
     end
 
     context "another parameter" do
       parameter :page, "Current page"
 
-      it 'should have 2 parameters' do
+      it 'should have 2 parameters' do |example|
         example.metadata[:parameters].length.should == 2
       end
     end
@@ -240,7 +250,7 @@ resource "Order" do
     end
 
     describe "trigger_callback" do
-      let(:callback_url) { stub }
+      let(:callback_url) { "http://www.example.net/callback" }
       let(:callbacks_triggered) { [] }
 
       trigger_callback do
@@ -266,12 +276,12 @@ resource "Order" do
 
         it "should mock requests to the callback url to be handled by the destination" do
           called = false
-          destination.stub!(:call).and_return do
+          expect(destination).to receive(:call) do
             called = true
             [200, {}, []]
           end
           do_callback
-          called.should be_true
+          called.should be true
         end
       end
 
@@ -292,8 +302,10 @@ resource "Order" do
       let(:id) { 1 }
 
       get "/users/:id/orders" do
+        let(:example) { |example| example }
+
         example "Page should be in the query string" do
-          client.should_receive(method).with do |path, data, headers|
+          client.should_receive(method) do |path, data, headers|
             path.should =~ /^\/users\/1\/orders\?/
             path.split("?")[1].split("&").sort.should == "page=2&message=Thank+you".split("&").sort
             data.should be_nil
@@ -304,6 +316,8 @@ resource "Order" do
       end
 
       post "/users/:id/orders" do
+        let(:example) { |example| example }
+
         example "Page should be in the post body" do
           client.should_receive(method).with("/users/1/orders", {"page" => 2, "message" => "Thank you"}, nil)
           do_request
@@ -335,7 +349,7 @@ resource "Order" do
       context "parameters except scope" do
         parameter :type, "Order type", :scope => :order
 
-        it "should save the scope" do
+        it "should save the scope" do |example|
           param = example.metadata[:parameters].detect { |param| param[:name] == "type" }
           param[:scope].should == :order
         end
@@ -347,6 +361,7 @@ resource "Order" do
         parameter :size, "Size of order"
 
         scope_parameters :order, [:name, :size]
+        let(:example) { |example| example }
 
         it 'should set the scope on listed parameters' do
           param = example.metadata[:parameters].detect { |param| param[:name] == "name" }
@@ -364,6 +379,7 @@ resource "Order" do
         parameter :size, "Size of order"
 
         scope_parameters :order, :all
+        let(:example) { |example| example }
 
         it "should scope all parameters under order" do
           params.should == { "order" => { "api_key" => api_key, "name" => name, "size" => size } }
@@ -383,7 +399,9 @@ resource "Order" do
 
   context "#explanation" do
     post "/orders" do
-      example "Creating an order" do
+      let(:example) { |example| example }
+
+      it "Creating an order" do
         explanation "By creating an order..."
         example.metadata[:explanation].should == "By creating an order..."
       end
@@ -392,13 +410,15 @@ resource "Order" do
 
   context "proper query_string serialization" do
     get "/orders" do
+      let(:example) { |example| example }
+
       context "with an array parameter" do
         parameter :id_eq, "List of IDs"
 
         let(:id_eq) { [1, 2] }
 
         example "parsed properly" do
-          client.should_receive(:get).with do |path, data, headers|
+          client.should_receive(:get) do |path, data, headers|
             Rack::Utils.parse_nested_query(path.gsub('/orders?', '')).should eq({"id_eq"=>['1', '2']})
           end
           do_request
@@ -412,7 +432,7 @@ resource "Order" do
         scope_parameters :search, :all
 
         example "parsed properly" do
-          client.should_receive(:get).with do |path, data, headers|
+          client.should_receive(:get) do |path, data, headers|
             Rack::Utils.parse_nested_query(path.gsub('/orders?', '')).should eq({
               "search" => { "within_id" => {"first" => '1', "last" => '10', "exclude" => ['3','5','7']}}
             })
@@ -426,6 +446,8 @@ resource "Order" do
 
 
   context "auto request" do
+    let(:example) { |example| example }
+
     post "/orders" do
       parameter :order_type, "Type of order"
 
@@ -453,13 +475,15 @@ resource "Order" do
 
   context "last_response helpers" do
     put "/orders" do
+      let(:example) { |example| example }
+
       it "status" do
-        client.stub!(:last_response).and_return(stub(:status => 200))
+        allow(client).to receive(:last_response).and_return(double(:status => 200))
         status.should == 200
       end
 
       it "response_body" do
-        client.stub!(:last_response).and_return(stub(:body => "the body"))
+        allow(client).to receive(:last_response).and_return(double(:body => "the body"))
         response_body.should == "the body"
       end
     end
@@ -468,6 +492,7 @@ resource "Order" do
   context "headers" do
     put "/orders" do
       header "Accept", "application/json"
+      let(:example) { |example| example }
 
       it "should be sent with the request" do
         example.metadata[:headers].should == { "Accept" => "application/json" }
@@ -486,12 +511,13 @@ resource "Order" do
       header "Accept", :accept
 
       let(:accept) { "application/json" }
+      let(:example) { |example| example }
 
-      it "should be sent with the request" do
+      it "should be sent with the request" do |example|
         example.metadata[:headers].should == { "Accept" => :accept }
       end
 
-      it "should fill out into the headers" do
+      it "should fill out into the headers" do |example|
         headers.should == { "Accept" => "application/json" }
       end
 
@@ -517,13 +543,13 @@ end
 resource "top level parameters" do
   parameter :page, "Current page"
 
-  it 'should have 1 parameter' do
+  it 'should have 1 parameter' do |example|
     example.metadata[:parameters].length.should == 1
   end
 end
 
 resource "passing in document to resource", :document => :not_all do
-  it "should have the correct tag" do
+  it "should have the correct tag" do |example|
     example.metadata[:document].should == :not_all
   end
 end

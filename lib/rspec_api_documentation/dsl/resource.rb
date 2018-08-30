@@ -23,8 +23,9 @@ module RspecApiDocumentation::DSL
       define_action :patch
 
       def callback(*args, &block)
-        require 'webmock'
-        self.send(:include, WebMock::API)
+        require 'webmock/rspec'
+        # require 'webmock'
+        # self.send(:include, WebMock::API)
 
         options = if args.last.is_a?(Hash) then args.pop else {} end
         options[:api_doc_dsl] = :callback
