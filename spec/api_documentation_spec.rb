@@ -15,11 +15,11 @@ describe RspecApiDocumentation::ApiDocumentation do
       test_file = configuration.docs_dir.join("test")
       FileUtils.mkdir_p configuration.docs_dir
       FileUtils.touch test_file
-      FileUtils.stub(:cp_r)
+      allow(FileUtils).to receive(:cp_r)
       subject.clear_docs
 
-      File.directory?(configuration.docs_dir).should be_true
-      File.exists?(test_file).should be_false
+      File.directory?(configuration.docs_dir).should be_truthy
+      File.exists?(test_file).should be false
     end
   end
 
@@ -30,7 +30,7 @@ describe RspecApiDocumentation::ApiDocumentation do
     let!(:wrapped_example) { RspecApiDocumentation::Example.new(example, configuration) }
 
     before do
-      RspecApiDocumentation::Example.stub!(:new).and_return(wrapped_example)
+      allow(RspecApiDocumentation::Example).to receive(:new).and_return(wrapped_example)
     end
 
     it "should create a new wrapped example" do
@@ -39,7 +39,7 @@ describe RspecApiDocumentation::ApiDocumentation do
     end
 
     context "when the given example should be documented" do
-      before { wrapped_example.stub!(:should_document?).and_return(true) }
+      before { allow(wrapped_example).to receive(:should_document?).and_return(true) }
 
       it "should add the wrapped example to the index" do
         documentation.document_example(example)
@@ -48,7 +48,7 @@ describe RspecApiDocumentation::ApiDocumentation do
     end
 
     context "when the given example should not be documented" do
-      before { wrapped_example.stub!(:should_document?).and_return(false) }
+      before { allow(wrapped_example).to receive(:should_document?).and_return(false) }
 
       it "should not add the wrapped example to the index" do
         documentation.document_example(example)
@@ -83,11 +83,11 @@ describe RspecApiDocumentation::ApiDocumentation do
   end
 
   describe "#write" do
-    let(:html_writer) { stub }
-    let(:json_writer) { stub }
+    let(:html_writer) { double }
+    let(:json_writer) { double }
 
     before do
-      subject.stub!(:writers => [html_writer, json_writer])
+      allow(subject).to receive(:writers).and_return([html_writer, json_writer])
     end
 
     it "should write the docs in each format" do

@@ -23,6 +23,7 @@ Feature: Document callbacks
       resource "Interesting Thing" do
         callback "/interesting_thing" do
           let(:callback_url) { "http://example.net/callback" }
+          let(:example) { |example| example }
 
           trigger_callback do
             app.call

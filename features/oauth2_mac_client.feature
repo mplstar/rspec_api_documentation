@@ -73,6 +73,7 @@ Feature: Use OAuth2 MAC client as a test client
 
         get "/" do
           parameter :target, "The thing you want to greet"
+          let(:example) {|example| example}
 
           example "Greeting your favorite gem" do
             do_request :target => "rspec_api_documentation"
@@ -85,6 +86,7 @@ Feature: Use OAuth2 MAC client as a test client
 
         get "/multiple" do
           parameter :targets, "The people you want to greet"
+          let(:example) {|example| example}
 
           let(:targets) { ["eric", "sam"] }
 
@@ -99,6 +101,7 @@ Feature: Use OAuth2 MAC client as a test client
 
         get "/multiple_nested" do
           parameter :targets, "The companies you want to greet"
+          let(:example) {|example| example}
 
           let(:targets) { { "apple" => ['mac', 'ios'], "google" => ['search', 'mail']} }
 

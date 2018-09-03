@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   # If adding, please consider gemfiles/minimum_dependencies
   s.add_runtime_dependency "rspec", "~> 3.0"
   s.add_runtime_dependency "activesupport"
-  s.add_runtime_dependency "i18n", "~> 1.0"
+  s.add_runtime_dependency "i18n", "~> 0.7"
   s.add_runtime_dependency "mustache", "~> 1.0", ">= 0.99.4"
   s.add_runtime_dependency "webmock", "~> 3.0"
   s.add_runtime_dependency "json", "~> 2.0"
@@ -40,7 +40,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "sinatra", "~> 2.0"
   s.add_development_dependency "aruba"
   s.add_development_dependency "capybara", "< 3.2.0"
-  s.add_development_dependency "rake", "~> 12.0"
+  s.add_development_dependency "rake", "~> 11.0"
   s.add_development_dependency "rack-test"
   s.add_development_dependency "rack-oauth2"
 

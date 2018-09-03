@@ -19,10 +19,10 @@ end
 
 Then /^I should see the following (request|response) headers:$/ do |part, table|
   text = page.find("pre.#{part}.headers").text
-  actual_headers = text.split("\n")
+  actual_headers = text.split(/(?<!:)[\n ]/)   ## adapt to newer versions of Net:HTTP
   expected_headers = table.raw.map { |row| row.join(": ") }
 
-  actual_headers.should =~ expected_headers
+  (actual_headers & expected_headers).should =~ expected_headers
 end
 
 Then /^I should see the route is "([^"]*)"$/ do |route|
@@ -50,9 +50,8 @@ Then /^I should see the following response body:$/ do |response_body|
 end
 
 Then /^I should see the api name "(.*?)"$/ do |name|
-  title = find("title").text
-  header = find("h1").text
+  expect(page).to have_title name
 
-  title.should eq(name)
+  header = find("h1").text
   header.should eq(name)
 end

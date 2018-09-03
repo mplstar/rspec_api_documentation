@@ -26,6 +26,7 @@ Feature: Generate HTML documentation from test examples
       resource "Greetings" do
         get "/greetings" do
           parameter :target, "The thing you want to greet"
+          let(:example) {|example| example}
 
           example "Greeting your favorite gem" do
             do_request :target => "rspec_api_documentation"
@@ -69,7 +70,6 @@ Feature: Generate HTML documentation from test examples
     Then  I should see the route is "GET /greetings?target=rspec_api_documentation"
     And   I should see the following request headers:
       | Host   | example.org |
-      | Cookie |             |
     And   I should see the following query parameters:
       | target | rspec_api_documentation |
 

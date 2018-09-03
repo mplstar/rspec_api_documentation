@@ -25,6 +25,7 @@ Feature: Specifying request headers
       resource "FooBars" do
         get "/foobar" do
           header "Accept", "foo"
+          let(:example) {|example| example}
 
           example "Getting Foo" do
             do_request

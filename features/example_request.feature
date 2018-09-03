@@ -19,6 +19,8 @@ Feature: Example Request
 
       resource "Example Request" do
         get "/" do
+          let(:example) {|example| example}
+
           example_request "Greeting your favorite gem" do
             status.should eq(201)
           end
@@ -35,5 +37,5 @@ Feature: Example Request
     Then the output should not contain "dsl.rb"
     Then the output should contain:
       """
-      rspec ./app_spec.rb:10 # Example Request GET / Greeting your favorite gem
+      rspec ./app_spec.rb:9 # Example Request GET / Greeting your favorite gem
       """

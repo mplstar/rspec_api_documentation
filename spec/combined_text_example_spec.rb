@@ -3,7 +3,7 @@ require "rspec_api_documentation/combined_text_writer"
 
 describe RspecApiDocumentation::CombinedTextExample do
   let(:metadata) { {} }
-  let(:rspec_example) { stub(:resource_name => "Foo Bar", :description => "ABCDEFG", :metadata => metadata) }
+  let(:rspec_example) { double(:resource_name => "Foo Bar", :description => "ABCDEFG", :metadata => metadata) }
   let(:example) { RspecApiDocumentation::CombinedTextExample.new(rspec_example) }
 
   it "should format its resource name" do

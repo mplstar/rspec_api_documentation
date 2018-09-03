@@ -29,6 +29,7 @@ Feature: Combined text
       resource "Greetings" do
         get "/greetings" do
           parameter :target, "The thing you want to greet"
+          let(:example) { |example| example }
 
           example "Greeting your favorite gem" do
             do_request :target => "rspec_api_documentation"

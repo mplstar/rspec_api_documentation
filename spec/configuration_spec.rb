@@ -33,9 +33,9 @@ describe RspecApiDocumentation::Configuration do
 
     context "when Rails is defined" do
       let(:rails_root) { Pathname.new("tmp") }
-      let(:rails_app) { stub }
+      let(:rails_app) { double() }
 
-      before { Rails = stub(:application => rails_app, :root => rails_root) }
+      before { Rails = double(:application => rails_app, :root => rails_root) }
       after { Object.send(:remove_const, :Rails) }
 
       its(:docs_dir) { should == rails_root.join("docs") }
@@ -50,7 +50,7 @@ describe RspecApiDocumentation::Configuration do
     its(:app) { should be_nil }
     its(:curl_host) { should be_nil }
     its(:url_prefix) { should be_blank }
-    its(:keep_source_order) { should be_false }
+    its(:keep_source_order) { should be false }
     its(:api_name) { should == "API Documentation" }
   end
 
@@ -116,7 +116,7 @@ describe RspecApiDocumentation::Configuration do
       subject.define_group(:sub) do |config|
       end
 
-      subject.groups.should have(1).group
+      subject.groups.size.should eq(1)
     end
   end
 end

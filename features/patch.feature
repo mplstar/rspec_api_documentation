@@ -22,6 +22,8 @@ Feature: Example Request with PATCH
       end
 
       resource "Example Request" do
+        let(:example) { |example| example }
+
         patch "/" do
           example_request "Trying out patch" do
             status.should eq(200)

@@ -28,6 +28,7 @@ module RspecApiDocumentation
       return true if configuration.filter == :all
       return false if (Array(metadata[:document]) & Array(configuration.exclusion_filter)).length > 0
       return true if (Array(metadata[:document]) & Array(configuration.filter)).length > 0
+      false   ## always return same type, so that it doesn't break tests  --xfc
     end
 
     def public?

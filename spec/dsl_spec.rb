@@ -4,7 +4,7 @@ require 'net/http'
 
 describe "Non-api documentation specs" do
   it "should not be polluted by the rspec api dsl" do |example|
-    example.example_group.should_not include(RspecApiDocumentation::DSL)
+    expect(example.example_group).to_not include(RspecApiDocumentation::DSL)
   end
 end
 

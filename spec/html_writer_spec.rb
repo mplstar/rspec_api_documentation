@@ -6,10 +6,10 @@ describe RspecApiDocumentation::HtmlWriter do
   let(:configuration) { RspecApiDocumentation::Configuration.new }
 
   describe ".write" do
-    let(:writer) { stub }
+    let(:writer) { double }
 
     it "should build a new writer and write the docs" do
-      described_class.stub!(:new).with(index, configuration).and_return(writer)
+      allow(described_class).to receive(:new).with(index, configuration).and_return(writer)
       writer.should_receive(:write)
       described_class.write(index, configuration)
     end
@@ -28,7 +28,7 @@ describe RspecApiDocumentation::HtmlWriter do
     it "should write the index" do
       writer.write
       index_file = File.join(configuration.docs_dir, "index.html")
-      File.exists?(index_file).should be_true
+      File.exists?(index_file).should be true
     end
   end
 end
